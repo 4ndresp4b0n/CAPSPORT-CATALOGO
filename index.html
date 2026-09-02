@@ -276,6 +276,7 @@
     position:sticky;top:56px;z-index:30;background:var(--bg);
     border-bottom:1px solid var(--line);
   }
+  .catnav-outer > .filter-pop{position:absolute;}
   @media(min-width:720px){.catnav-outer{top:60px;}}
   .catnav{
     display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none;
@@ -292,6 +293,20 @@
   .cat-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
   :root[data-theme="dark"] .cat-btn[aria-pressed="true"], @media (prefers-color-scheme:dark){}
   .cat-btn .em{font-size:15px;}
+  .cat-btn.has-value{border-color:var(--red);color:var(--red);}
+
+  .filter-pop{
+    position:absolute;top:100%;left:16px;right:16px;margin-top:6px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);
+    box-shadow:var(--shadow);z-index:35;padding:12px;
+    display:flex;flex-wrap:wrap;gap:7px;max-height:220px;overflow-y:auto;
+  }
+  @media(min-width:720px){.filter-pop{left:28px;right:auto;width:280px;}}
+  .filter-pop .fp-chip{
+    font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--radius-pill);
+    border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;
+  }
+  .filter-pop .fp-chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff;}
 
   /* ---------- search & filters ---------- */
   .search-row{padding:16px 0 4px;}
@@ -588,6 +603,8 @@
   </div>
   <div class="catnav-outer">
     <div class="catnav" id="catNav"></div>
+    <div class="filter-pop" id="brandPop" hidden></div>
+    <div class="filter-pop" id="sizePop" hidden></div>
   </div>
 </div>
 
@@ -616,20 +633,6 @@
     <div class="search-box">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="text" id="searchInput" placeholder="¿Qué estás buscando? Ej: Nike, gorra, running…">
-    </div>
-    <div class="filter-row">
-      <select class="filter" id="filterBrand"><option value="">Marca: Todas</option></select>
-      <select class="filter" id="filterPrice">
-        <option value="">Precio: Todos</option>
-        <option value="0-150000">Hasta $150.000</option>
-        <option value="150000-300000">$150.000 – $300.000</option>
-        <option value="300000-450000">$300.000 – $450.000</option>
-        <option value="450000-999999999">Más de $450.000</option>
-      </select>
-      <select class="filter" id="filterOferta">
-        <option value="">Ofertas: Todas</option>
-        <option value="si">Solo con descuento</option>
-      </select>
     </div>
     <p class="result-count" id="resultCount"></p>
   </section>
@@ -908,6 +911,9 @@ function closeQV(){
 /* ---------------- render: category nav ---------------- */
 const catNav = document.getElementById('catNav');
 let activeCat = '';
+let activeBrand = '';
+let activeSize = '';
+
 CATEGORIES.forEach(c=>{
   const b = document.createElement('button');
   b.className = 'cat-btn';
@@ -916,18 +922,76 @@ CATEGORIES.forEach(c=>{
   b.innerHTML = `<span class="em">${c.emoji}</span>${c.label}`;
   b.addEventListener('click', ()=>{
     activeCat = c.id;
-    document.querySelectorAll('.cat-btn').forEach(x=>x.setAttribute('aria-pressed', x===b ? 'true':'false'));
-    document.getElementById('filterOferta').value = c.id === 'ofertas' ? 'si' : document.getElementById('filterOferta').value;
+    document.querySelectorAll('#catNav .cat-btn').forEach(x=>x.setAttribute('aria-pressed', x===b ? 'true':'false'));
+    closeAllPops();
     render();
     document.getElementById('gridSection').scrollIntoView({behavior:'smooth', block:'start'});
   });
   catNav.appendChild(b);
 });
 
-/* ---------------- render: brand filter options ---------------- */
-const brandSel = document.getElementById('filterBrand');
-[...new Set(PRODUCTS.map(p=>p.brand))].sort().forEach(b=>{
-  const o = document.createElement('option'); o.value=b; o.textContent=b; brandSel.appendChild(o);
+/* ---------------- Marcas / Tallas: botón + popover ---------------- */
+function closeAllPops(){
+  document.getElementById('brandPop').hidden = true;
+  document.getElementById('sizePop').hidden = true;
+}
+function makeFilterButton(label, emoji, popId){
+  const b = document.createElement('button');
+  b.className = 'cat-btn';
+  b.type = 'button';
+  b.id = popId + 'Btn';
+  b.innerHTML = `<span class="em">${emoji}</span>${label}`;
+  b.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const pop = document.getElementById(popId);
+    const willOpen = pop.hidden;
+    closeAllPops();
+    pop.hidden = !willOpen;
+  });
+  catNav.appendChild(b);
+  return b;
+}
+const marcasBtn = makeFilterButton('Marcas', '🏷️', 'brandPop');
+const tallasBtn = makeFilterButton('Tallas', '📏', 'sizePop');
+
+function popChip(label, selected, onClick){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'fp-chip';
+  b.textContent = label;
+  b.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  b.addEventListener('click', onClick);
+  return b;
+}
+function renderBrandPop(){
+  const pop = document.getElementById('brandPop');
+  pop.innerHTML = '';
+  pop.appendChild(popChip('Todas', activeBrand === '', ()=>{ activeBrand=''; afterFilterPick(); }));
+  [...new Set(PRODUCTS.map(p=>p.brand))].sort().forEach(brand=>{
+    pop.appendChild(popChip(brand, activeBrand === brand, ()=>{ activeBrand=brand; afterFilterPick(); }));
+  });
+}
+function renderSizePop(){
+  const pop = document.getElementById('sizePop');
+  pop.innerHTML = '';
+  pop.appendChild(popChip('Todas', activeSize === '', ()=>{ activeSize=''; afterFilterPick(); }));
+  const sizes = [...new Set(PRODUCTS.flatMap(p=>p.sizes))].filter(s=>s!=='Única').sort((a,b)=>parseFloat(a)-parseFloat(b));
+  sizes.forEach(s=>{
+    pop.appendChild(popChip(s, activeSize === s, ()=>{ activeSize=s; afterFilterPick(); }));
+  });
+}
+function afterFilterPick(){
+  closeAllPops();
+  marcasBtn.classList.toggle('has-value', activeBrand !== '');
+  tallasBtn.classList.toggle('has-value', activeSize !== '');
+  renderBrandPop();
+  renderSizePop();
+  render();
+}
+renderBrandPop();
+renderSizePop();
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.filter-pop') && !e.target.closest('#brandPopBtn') && !e.target.closest('#sizePopBtn')) closeAllPops();
 });
 
 /* ---------------- card builder ---------------- */
@@ -976,9 +1040,6 @@ function card(p){
 function currentFilters(){
   return {
     q: document.getElementById('searchInput').value.trim().toLowerCase(),
-    brand: document.getElementById('filterBrand').value,
-    price: document.getElementById('filterPrice').value,
-    oferta: document.getElementById('filterOferta').value,
   };
 }
 function matches(p, f){
@@ -990,13 +1051,8 @@ function matches(p, f){
     const qCompact = f.q.replace(/\s+/g,'');
     if(!hay.includes(f.q) && !hayCompact.includes(qCompact)) return false;
   }
-  if(f.brand && p.brand !== f.brand) return false;
-  if(f.oferta === 'si' && !pct(p)) return false;
-  if(f.price){
-    const [lo,hi] = f.price.split('-').map(Number);
-    const price = p.priceRange ? p.priceRange[0] : p.price;
-    if(price < lo || price > hi) return false;
-  }
+  if(activeBrand && p.brand !== activeBrand) return false;
+  if(activeSize && !p.sizes.includes(activeSize)) return false;
   return true;
 }
 function render(){
@@ -1010,10 +1066,7 @@ function render(){
   const titles = {hombre:'Hombre', mujer:'Mujer', nino:'Niño', accesorios:'Accesorios', ofertas:'Ofertas'};
   document.getElementById('gridTitle').textContent = activeCat ? titles[activeCat] : 'Todo el catálogo';
 }
-['searchInput','filterBrand','filterPrice','filterOferta'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', render);
-  document.getElementById(id).addEventListener('change', render);
-});
+document.getElementById('searchInput').addEventListener('input', render);
 
 /* ---------------- ofertas rail ---------------- */
 const ofertas = PRODUCTS.filter(p=>pct(p));
