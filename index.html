@@ -273,10 +273,9 @@
 
   /* ---------- category nav ---------- */
   .catnav-outer{
-    position:sticky;top:56px;z-index:30;background:var(--bg);
+    position:sticky;top:56px;z-index:70;background:var(--bg);
     border-bottom:1px solid var(--line);
   }
-  .catnav-outer > .filter-pop{position:absolute;}
   @media(min-width:720px){.catnav-outer{top:60px;}}
   .catnav{
     display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none;
@@ -295,14 +294,24 @@
   .cat-btn .em{font-size:15px;}
   .cat-btn.has-value{border-color:var(--red);color:var(--red);}
 
+  .filter-backdrop{
+    position:fixed;inset:0;z-index:63;background:rgba(10,9,8,0.5);
+  }
+  .filter-backdrop[hidden]{display:none;}
   .filter-pop{
-    position:absolute;top:100%;left:16px;right:16px;margin-top:6px;
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);
-    box-shadow:var(--shadow);z-index:35;padding:12px;
-    display:flex;flex-wrap:wrap;gap:7px;max-height:220px;overflow-y:auto;
+    position:fixed;left:12px;right:12px;bottom:12px;
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);z-index:64;padding:16px;
+    display:flex;flex-wrap:wrap;align-content:flex-start;gap:7px;
+    max-height:60vh;overflow-y:auto;
   }
   .filter-pop[hidden]{display:none;}
-  @media(min-width:720px){.filter-pop{left:28px;right:auto;width:280px;}}
+  @media(min-width:720px){
+    .filter-pop{
+      left:50%;right:auto;bottom:auto;top:110px;transform:translateX(-50%);
+      width:340px;max-height:65vh;
+    }
+  }
   .filter-pop .fp-chip{
     font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--radius-pill);
     border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;
@@ -585,7 +594,7 @@
     .topbar{position:static;}
     .catnav-outer{position:static;}
     .fab-wa{display:none;}
-    .cart-drawer,.cart-overlay{display:none;}
+    .cart-drawer,.cart-overlay,.filter-pop,.filter-backdrop{display:none;}
     .rail{overflow:visible;flex-wrap:wrap;scroll-snap-type:none;row-gap:16px;}
     .rail .card{flex:0 0 31.5%;}
     .card{break-inside:avoid;page-break-inside:avoid;}
@@ -609,10 +618,12 @@
   </div>
   <div class="catnav-outer">
     <div class="catnav" id="catNav"></div>
-    <div class="filter-pop" id="brandPop" hidden></div>
-    <div class="filter-pop" id="sizePop" hidden></div>
   </div>
 </div>
+
+<div class="filter-backdrop" id="filterBackdrop" hidden onclick="closeAllPops()"></div>
+<div class="filter-pop" id="brandPop" hidden></div>
+<div class="filter-pop" id="sizePop" hidden></div>
 
 <header class="hero">
   <div class="wrap hero-inner">
@@ -941,6 +952,7 @@ CATEGORIES.forEach(c=>{
 function closeAllPops(){
   document.getElementById('brandPop').hidden = true;
   document.getElementById('sizePop').hidden = true;
+  document.getElementById('filterBackdrop').hidden = true;
 }
 function makeFilterButton(label, emoji, popId, renderFn){
   const b = document.createElement('button');
@@ -954,6 +966,7 @@ function makeFilterButton(label, emoji, popId, renderFn){
     const willOpen = pop.hidden;
     closeAllPops();
     if(willOpen){
+      document.getElementById('filterBackdrop').hidden = false;
       renderFn();
       pop.hidden = false;
     }
@@ -1017,9 +1030,6 @@ function afterFilterPick(){
   marcasBtn.classList.toggle('has-value', activeBrand !== '');
   tallasBtn.classList.toggle('has-value', activeSize !== '');
 }
-document.addEventListener('click', (e)=>{
-  if(!e.target.closest('.filter-pop') && !e.target.closest('#brandPopBtn') && !e.target.closest('#sizePopBtn')) closeAllPops();
-});
 
 /* ---------------- card builder ---------------- */
 function card(p){
