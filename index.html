@@ -766,6 +766,7 @@ const CATEGORIES = [
   {id:'mujer', label:'Mujer', emoji:'👟'},
   {id:'nino', label:'Niño', emoji:'👟'},
   {id:'accesorios', label:'Accesorios', emoji:'🧢'},
+  {id:'ropa', label:'Ropa', emoji:'👕'},
   {id:'ofertas', label:'Ofertas', emoji:'🔥'},
 ];
 
@@ -1044,8 +1045,9 @@ function currentFilters(){
   };
 }
 function matches(p, f){
-  if(activeCat && activeCat !== 'ofertas' && p.gender !== activeCat) return false;
+  if(activeCat && activeCat !== 'ofertas' && activeCat !== 'ropa' && p.gender !== activeCat) return false;
   if(activeCat === 'ofertas' && !pct(p)) return false;
+  if(activeCat === 'ropa' && p.type !== 'Ropa') return false;
   if(f.q){
     const hay = `${p.brand} ${p.name} ${p.sku} ${genLabel(p.gender)} ${p.type}`.toLowerCase();
     const hayCompact = hay.replace(/\s+/g,'');
@@ -1064,7 +1066,7 @@ function render(){
   document.getElementById('emptyState').hidden = list.length !== 0;
   document.getElementById('resultCount').textContent = `${list.length} producto${list.length===1?'':'s'} encontrado${list.length===1?'':'s'}`;
   document.getElementById('gridCount').textContent = `${list.length} producto${list.length===1?'':'s'}`;
-  const titles = {hombre:'Hombre', mujer:'Mujer', nino:'Niño', accesorios:'Accesorios', ofertas:'Ofertas'};
+  const titles = {hombre:'Hombre', mujer:'Mujer', nino:'Niño', accesorios:'Accesorios', ropa:'Ropa', ofertas:'Ofertas'};
   document.getElementById('gridTitle').textContent = activeCat ? titles[activeCat] : 'Todo el catálogo';
 }
 document.getElementById('searchInput').addEventListener('input', render);
