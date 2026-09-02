@@ -986,7 +986,9 @@ function matches(p, f){
   if(activeCat === 'ofertas' && !pct(p)) return false;
   if(f.q){
     const hay = `${p.brand} ${p.name} ${p.sku} ${genLabel(p.gender)} ${p.type}`.toLowerCase();
-    if(!hay.includes(f.q)) return false;
+    const hayCompact = hay.replace(/\s+/g,'');
+    const qCompact = f.q.replace(/\s+/g,'');
+    if(!hay.includes(f.q) && !hayCompact.includes(qCompact)) return false;
   }
   if(f.brand && p.brand !== f.brand) return false;
   if(f.oferta === 'si' && !pct(p)) return false;
