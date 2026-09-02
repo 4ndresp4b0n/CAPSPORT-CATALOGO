@@ -83,6 +83,15 @@
   .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;}
   @media(min-width:720px){.wrap{padding-inline:28px;}}
 
+  /* ---------- promo bar ---------- */
+  .promo-bar{
+    background:var(--red);color:#fff;text-align:center;
+    padding:9px 12px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  .promo-flag{font-size:21px;line-height:1;}
+  .promo-text{font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
+  @media(min-width:640px){.promo-text{font-size:13px;}}
+
   /* ---------- topbar ---------- */
   .topbar{
     position:sticky;top:0;z-index:40;
@@ -433,6 +442,11 @@
     .hero{break-inside:avoid;}
   }
 </style>
+
+<div class="promo-bar">
+  <span class="promo-flag" aria-hidden="true">🇨🇴</span>
+  <span class="promo-text">Toda la tienda al 30% de descuento</span>
+</div>
 
 <div class="topbar">
   <div class="topbar-inner">
