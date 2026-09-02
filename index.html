@@ -308,6 +308,11 @@
     border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;
   }
   .filter-pop .fp-chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff;}
+  .fp-group-label{
+    flex:0 0 100%;font-size:10.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
+    color:var(--ink-faint);margin-top:8px;
+  }
+  .fp-group-label:first-of-type{margin-top:2px;}
 
   /* ---------- search & filters ---------- */
   .search-row{padding:16px 0 4px;}
@@ -976,14 +981,35 @@ function renderBrandPop(){
     pop.appendChild(popChip(brand, activeBrand === brand, ()=>{ activeBrand=brand; afterFilterPick(); }));
   });
 }
+function sizeGroupLabel(text){
+  const s = document.createElement('span');
+  s.className = 'fp-group-label';
+  s.textContent = text;
+  return s;
+}
 function renderSizePop(){
   const pop = document.getElementById('sizePop');
   pop.innerHTML = '';
   pop.appendChild(popChip('Todas', activeSize === '', ()=>{ activeSize=''; afterFilterPick(); }));
-  const sizes = [...new Set(PRODUCTS.flatMap(p=>p.sizes))].filter(s=>s!=='Única').sort((a,b)=>parseFloat(a)-parseFloat(b));
-  sizes.forEach(s=>{
-    pop.appendChild(popChip(s, activeSize === s, ()=>{ activeSize=s; afterFilterPick(); }));
-  });
+  const all = [...new Set(PRODUCTS.flatMap(p=>p.sizes))].filter(s=>s!=='Única');
+  const ropa = all.filter(s=>['XS','S','M','L','XL','XXL'].includes(s));
+  const numeric = all.filter(s=>!isNaN(parseFloat(s)));
+  const us = numeric.filter(s=>parseFloat(s) <= 14).sort((a,b)=>parseFloat(a)-parseFloat(b));
+  const eu = numeric.filter(s=>parseFloat(s) > 14).sort((a,b)=>parseFloat(a)-parseFloat(b));
+  const order = {XS:0,S:1,M:2,L:3,XL:4,XXL:5};
+  ropa.sort((a,b)=>order[a]-order[b]);
+  if(us.length){
+    pop.appendChild(sizeGroupLabel('Tallas calzado (EE.UU.)'));
+    us.forEach(s=> pop.appendChild(popChip(s, activeSize === s, ()=>{ activeSize=s; afterFilterPick(); })));
+  }
+  if(eu.length){
+    pop.appendChild(sizeGroupLabel('Tallas calzado (EU / COL)'));
+    eu.forEach(s=> pop.appendChild(popChip(s, activeSize === s, ()=>{ activeSize=s; afterFilterPick(); })));
+  }
+  if(ropa.length){
+    pop.appendChild(sizeGroupLabel('Tallas de ropa'));
+    ropa.forEach(s=> pop.appendChild(popChip(s, activeSize === s, ()=>{ activeSize=s; afterFilterPick(); })));
+  }
 }
 function afterFilterPick(){
   render();
