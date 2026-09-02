@@ -598,7 +598,6 @@
     </div>
     <div class="hero-ctas">
       <a href="#catalogo" class="btn btn-primary">Ver catálogo</a>
-      <a href="#" id="heroWaBtn" target="_blank" rel="noopener" class="btn btn-ghost">Hablar por WhatsApp</a>
     </div>
   </div>
   <div class="trust-strip">
@@ -1023,7 +1022,7 @@ document.getElementById('destacadosRail').innerHTML = destacados.map(card).join(
 /* ---------------- whatsapp links (top / hero / visit / fab) ---------------- */
 const genericMsg = "Hola CAP SPORT 👋 Vi su catálogo y quisiera más información.";
 const genericLink = waLink(CONFIG.WHATSAPP_NUMBER, genericMsg);
-['topWaBtn','heroWaBtn','visitWaBtn','fabWa'].forEach(id=>{
+['topWaBtn','visitWaBtn','fabWa'].forEach(id=>{
   document.getElementById(id).href = genericLink;
 });
 document.getElementById('mapsBtn').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.ADDRESS_TEXT)}`;
