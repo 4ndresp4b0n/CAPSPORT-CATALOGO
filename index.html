@@ -937,7 +937,7 @@ function closeAllPops(){
   document.getElementById('brandPop').hidden = true;
   document.getElementById('sizePop').hidden = true;
 }
-function makeFilterButton(label, emoji, popId){
+function makeFilterButton(label, emoji, popId, renderFn){
   const b = document.createElement('button');
   b.className = 'cat-btn';
   b.type = 'button';
@@ -948,13 +948,16 @@ function makeFilterButton(label, emoji, popId){
     const pop = document.getElementById(popId);
     const willOpen = pop.hidden;
     closeAllPops();
-    pop.hidden = !willOpen;
+    if(willOpen){
+      renderFn();
+      pop.hidden = false;
+    }
   });
   catNav.appendChild(b);
   return b;
 }
-const marcasBtn = makeFilterButton('Marcas', '🏷️', 'brandPop');
-const tallasBtn = makeFilterButton('Tallas', '📏', 'sizePop');
+const marcasBtn = makeFilterButton('Marcas', '🏷️', 'brandPop', renderBrandPop);
+const tallasBtn = makeFilterButton('Tallas', '📏', 'sizePop', renderSizePop);
 
 function popChip(label, selected, onClick){
   const b = document.createElement('button');
@@ -983,15 +986,11 @@ function renderSizePop(){
   });
 }
 function afterFilterPick(){
+  render();
   closeAllPops();
   marcasBtn.classList.toggle('has-value', activeBrand !== '');
   tallasBtn.classList.toggle('has-value', activeSize !== '');
-  renderBrandPop();
-  renderSizePop();
-  render();
 }
-renderBrandPop();
-renderSizePop();
 document.addEventListener('click', (e)=>{
   if(!e.target.closest('.filter-pop') && !e.target.closest('#brandPopBtn') && !e.target.closest('#sizePopBtn')) closeAllPops();
 });
