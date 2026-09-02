@@ -513,10 +513,11 @@
     /* Ofertas / Más buscados en celular: una tarjeta grande a la vez
        (deslizando), no 3 en miniatura — se ve mejor con el texto grande. */
     .rail .card{flex:0 0 88%;}
-    .rail .card .photo{aspect-ratio:4/3;}
-    .rail .card .card-body{padding:12px 14px 14px;gap:6px;}
+    .rail .card .photo{aspect-ratio:2/1;}
+    .rail .card .photo img{object-fit:contain;padding:10px;}
+    .rail .card .card-body{padding:10px 14px 12px;gap:5px;}
     .rail .card .sizes-row{gap:5px;}
-    .rail .card .card-foot{gap:6px;padding-top:6px;}
+    .rail .card .card-foot{gap:6px;padding-top:4px;}
   }
 
   /* ---------- print ---------- */
