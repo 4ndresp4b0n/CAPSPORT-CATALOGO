@@ -83,14 +83,12 @@
   .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;}
   @media(min-width:720px){.wrap{padding-inline:28px;}}
 
-  /* ---------- promo bar ---------- */
-  .promo-bar{
-    background:var(--red);color:#fff;text-align:center;
-    padding:9px 12px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;
-  }
-  .promo-flag{width:26px;height:auto;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,0.5);}
-  .promo-text{font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
-  @media(min-width:640px){.promo-text{font-size:13px;}}
+  /* ---------- flag stripe bar ---------- */
+  .flag-stripes{display:flex;flex-direction:column;}
+  .flag-stripes span{display:block;}
+  .flag-stripes .s-yellow{height:16px;background:#FCD116;}
+  .flag-stripes .s-blue{height:8px;background:#003893;}
+  .flag-stripes .s-red{height:8px;background:#CE1126;}
 
   /* ---------- topbar ---------- */
   .topbar{
@@ -215,8 +213,35 @@
     font-size:clamp(13px,3.4vw,17px);letter-spacing:0.03em;
     color:#fff;margin-top:10px;
   }
+  .flag-wave{width:96px;height:auto;margin:0 auto 14px;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.4));}
+  .promo-headline{
+    font-size:clamp(34px,10.5vw,64px);color:#fff;margin:0;line-height:0.95;text-wrap:balance;
+  }
+  .promo-headline .pct{color:var(--red);}
+  .ribbon-wrap{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;}
+  .ribbon-tick{width:12px;height:26px;flex:none;
+    background:repeating-linear-gradient(115deg,var(--red) 0 3px, transparent 3px 8px);
+  }
+  .ribbon{
+    background:var(--red);color:#fff;font-family:'Anton',sans-serif;
+    font-size:clamp(14px,3.6vw,19px);letter-spacing:0.02em;text-transform:uppercase;
+    padding:7px 18px;
+  }
+  .patriot-tag{
+    font-family:'Anton',sans-serif;text-transform:uppercase;
+    font-size:clamp(16px,4.2vw,23px);letter-spacing:0.05em;
+    margin:16px 0 0;display:flex;gap:10px;justify-content:center;
+  }
+  .patriot-tag .c-yellow{color:#FCD116;}
+  .patriot-tag .c-blue{color:#5B8DEF;}
+  .patriot-tag .c-red{color:var(--red);}
+  .patriot-rule{width:130px;height:1px;background:rgba(255,255,255,0.22);margin:12px auto 0;position:relative;}
+  .patriot-rule .star{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    color:var(--red);font-size:11px;background:#0B0B0C;padding:0 7px;line-height:1;
+  }
   .subtag{
-    color:#C9C6C0;font-size:14.5px;max-width:420px;margin:10px auto 0;line-height:1.5;
+    color:#C9C6C0;font-size:14.5px;max-width:420px;margin:16px auto 0;line-height:1.5;
   }
   .hero-ctas{
     display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap;
@@ -443,13 +468,8 @@
   }
 </style>
 
-<div class="promo-bar">
-  <svg class="promo-flag" viewBox="0 0 30 20" aria-label="Bandera de Colombia" role="img">
-    <rect width="30" height="20" fill="#FCD116"/>
-    <rect width="30" height="10" y="10" fill="#003893"/>
-    <rect width="30" height="5" y="15" fill="#CE1126"/>
-  </svg>
-  <span class="promo-text">Toda la tienda al 30% de descuento</span>
+<div class="flag-stripes" aria-hidden="true">
+  <span class="s-yellow"></span><span class="s-blue"></span><span class="s-red"></span>
 </div>
 
 <div class="topbar">
@@ -473,8 +493,27 @@
 <header class="hero">
   <div class="wrap hero-inner">
     <span class="eyebrow">Catálogo 2026 · Cali, Colombia</span>
-    <h1>CAP<span class="slash">/</span>SPORT</h1>
-    <p class="tagline">Lo original marca la diferencia</p>
+    <svg class="flag-wave" viewBox="0 0 160 100" aria-label="Bandera de Colombia" role="img">
+      <defs>
+        <filter id="waveDistort" x="-30%" y="-30%" width="160%" height="160%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves="2" seed="7" result="turb"/>
+          <feDisplacementMap in="SourceGraphic" in2="turb" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <g filter="url(#waveDistort)" transform="rotate(-3 80 50)">
+        <rect x="8" y="12" width="144" height="76" fill="#FCD116"/>
+        <rect x="8" y="50" width="144" height="38" fill="#003893"/>
+        <rect x="8" y="69" width="144" height="19" fill="#CE1126"/>
+      </g>
+    </svg>
+    <h1 class="promo-headline"><span class="pct">30%</span> de descuento</h1>
+    <div class="ribbon-wrap">
+      <span class="ribbon-tick" aria-hidden="true"></span>
+      <span class="ribbon">En toda la página</span>
+      <span class="ribbon-tick" aria-hidden="true"></span>
+    </div>
+    <p class="patriot-tag"><span class="c-yellow">Unidos</span><span class="c-blue">somos</span><span class="c-red">todos</span></p>
+    <div class="patriot-rule"><span class="star">★</span></div>
     <p class="subtag">Calzado, ropa y accesorios originales de Nike, Adidas, Puma, New Balance, Le Coq Sportif, Skechers y más. Escríbenos y te confirmamos talla al instante.</p>
     <div class="hero-ctas">
       <a href="#catalogo" class="btn btn-primary">Ver catálogo</a>
