@@ -510,14 +510,10 @@
     .cart-total-row span:first-child{font-size:16.5px;}
     .btn-checkout{font-size:20px;padding:19px 20px;}
 
-    /* Ofertas / Más buscados en celular: una tarjeta grande a la vez
-       (deslizando), no 3 en miniatura — se ve mejor con el texto grande. */
-    .rail .card{flex:0 0 88%;}
-    .rail .card .photo{aspect-ratio:2/1;}
-    .rail .card .photo img{object-fit:contain;padding:10px;}
-    .rail .card .card-body{padding:10px 14px 12px;gap:5px;}
-    .rail .card .sizes-row{gap:5px;}
-    .rail .card .card-foot{gap:6px;padding-top:4px;}
+    /* Ofertas / Más buscados en celular: lista vertical normal,
+       nada de carrusel horizontal — cada producto uno debajo del otro. */
+    .rail{flex-direction:column;overflow-x:visible;scroll-snap-type:none;}
+    .rail .card{flex:none;width:100%;}
   }
 
   /* ---------- print ---------- */
