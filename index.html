@@ -384,6 +384,43 @@
   .btn-buy:hover{background:var(--red-deep);}
   .btn-buy svg{width:16px;height:16px;}
 
+  .foot-row{display:flex;gap:8px;}
+  .foot-row .btn-buy{flex:1;}
+  .btn-eye{
+    flex:none;width:44px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-s);
+    color:var(--ink-soft);cursor:pointer;
+  }
+  .btn-eye:hover{background:var(--surface);color:var(--ink);}
+  .btn-eye svg{width:19px;height:19px;}
+
+  /* ---------- quick view modal ---------- */
+  .qv-overlay{
+    position:fixed;inset:0;background:rgba(10,9,8,0.55);z-index:65;
+    opacity:0;pointer-events:none;transition:opacity .18s ease;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .qv-overlay.open{opacity:1;pointer-events:auto;}
+  .qv-modal{
+    position:relative;background:var(--surface);width:100%;max-width:420px;
+    border-radius:16px 16px 0 0;max-height:85vh;overflow-y:auto;
+    transform:translateY(100%);transition:transform .2s ease;padding:20px 20px 26px;
+  }
+  .qv-overlay.open .qv-modal{transform:translateY(0);}
+  @media(min-width:640px){
+    .qv-overlay{align-items:center;}
+    .qv-modal{border-radius:16px;max-height:80vh;}
+  }
+  .qv-close{
+    position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;
+    border:1px solid var(--line);background:var(--surface-2);color:var(--ink);
+    cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;
+  }
+  .qv-photo{background:var(--photo-bg);border-radius:10px;aspect-ratio:4/3;overflow:hidden;margin-bottom:14px;}
+  .qv-photo img{width:100%;height:100%;object-fit:contain;}
+  .qv-name{font-size:19px;font-weight:800;color:var(--ink);margin:6px 0 2px;line-height:1.25;}
+  .qv-desc{font-size:14px;color:var(--ink-soft);line-height:1.55;margin:10px 0 0;}
+
   .empty-state{
     text-align:center;padding:48px 16px;color:var(--ink-soft);
   }
@@ -701,6 +738,13 @@
   <div class="cart-foot" id="cartFoot"></div>
 </aside>
 
+<div class="qv-overlay" id="qvOverlay" onclick="if(event.target===this)closeQV()">
+  <div class="qv-modal" id="qvModal">
+    <button class="qv-close" type="button" onclick="closeQV()" aria-label="Cerrar">✕</button>
+    <div id="qvBody"></div>
+  </div>
+</div>
+
 <script>
 /* =========================================================
    CONFIG — edita aquí el número de WhatsApp oficial vigente.
@@ -727,7 +771,7 @@ const CATEGORIES = [
 
 // Datos reales tomados del catálogo en vivo de capsport.com.co (30% de descuento activo en toda la tienda).
 // Precio, referencia y tallas listadas son los mismos que muestra la página del producto real.
-const PRODUCTS = [{"img": "astra-special", "brand": "Le Coq Sportif", "name": "Astra Special", "sku": "2610718", "gender": "hombre", "type": "Calzado", "price": 315000, "priceBefore": 450000, "installments": "3 cuotas de $105.000 con ADDI", "sizes": ["40", "41", "43", "44.5"]}, {"img": "adilette-aqua", "brand": "Adidas", "name": "Adilette Aqua", "sku": "F35542", "gender": "hombre", "type": "Chanclas", "priceRange": [126000, 180000], "installments": "3 cuotas de $42.000 con ADDI", "sizes": ["7", "12"]}, {"img": "pounce-lite", "brand": "Puma", "name": "Pounce Lite", "sku": "31077817", "gender": "hombre", "type": "Calzado", "price": 273000, "priceBefore": 390000, "installments": "3 cuotas de $91.000 con ADDI", "sizes": ["7", "9.5", "10.5"]}, {"img": "indoor-marino", "brand": "Joma", "name": "Indoor Marino", "sku": "MAXW2503-IN", "gender": "hombre", "type": "Guayos", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["7.5", "8", "8.5", "9", "9.5"]}, {"img": "bmw-softride-slide", "brand": "Puma", "name": "BMW MMS Softride Slide", "sku": "307695-01", "gender": "hombre", "type": "Chanclas", "price": 161000, "priceBefore": 230000, "installments": "3 cuotas de $53.667 con ADDI", "sizes": ["8", "10"]}, {"img": "chancla-le-coq-slide", "brand": "Le Coq Sportif", "name": "Chancla Le Coq Slide", "sku": "2610648", "gender": "hombre", "type": "Chanclas", "price": 105000, "priceBefore": 150000, "installments": "3 cuotas de $35.000 con ADDI", "sizes": ["39", "40", "41", "42", "43"]}, {"img": "racerone-special", "brand": "Le Coq Sportif", "name": "Racerone Special", "sku": "2610717", "gender": "hombre", "type": "Calzado", "price": 276500, "priceBefore": 395000, "installments": "3 cuotas de $92.167 con ADDI", "sizes": ["39", "40", "41", "42.5", "43", "44.5"], "destacado": true}, {"img": "slip-ins-max-run", "brand": "Skechers", "name": "Slip-Ins Performance Max Run", "sku": "129200-GYMT", "gender": "mujer", "type": "Calzado", "price": 378000, "priceBefore": 540000, "installments": "3 cuotas de $126.000 con ADDI", "sizes": ["5.5", "7", "8"]}, {"img": "adidas-galaxy-7", "brand": "Adidas", "name": "Galaxy 7", "sku": "ID8762", "gender": "mujer", "type": "Calzado", "price": 252000, "priceBefore": 360000, "installments": "3 cuotas de $84.000 con ADDI", "sizes": ["6", "6.5", "7", "7.5"], "destacado": true}, {"img": "running-course", "brand": "New Balance", "name": "Running Course", "sku": "W52051V", "gender": "mujer", "type": "Calzado", "price": 266000, "priceBefore": 380000, "installments": "3 cuotas de $88.667 con ADDI", "sizes": ["5", "6", "6.5", "7", "7.5"]}, {"img": "popcat-20", "brand": "Puma", "name": "Popcat 20", "sku": "404855-01", "gender": "mujer", "type": "Chanclas", "price": 119000, "priceBefore": 170000, "installments": "3 cuotas de $39.667 con ADDI", "sizes": ["5", "6", "8", "9"]}, {"img": "st-miller-rise", "brand": "Puma", "name": "ST Miller Rise", "sku": "404916-02", "gender": "mujer", "type": "Calzado", "price": 315000, "priceBefore": 450000, "installments": "3 cuotas de $105.000 con ADDI", "sizes": ["5.5", "6", "6.5", "7", "7.5", "8.5"], "destacado": true}, {"img": "nitrel-v6", "brand": "New Balance", "name": "Nitrel V6", "sku": "WNTR88D", "gender": "mujer", "type": "Calzado", "price": 343000, "priceBefore": 490000, "installments": "3 cuotas de $114.333 con ADDI", "sizes": ["6", "6.5", "7.5"]}, {"img": "garoe-v2", "brand": "New Balance", "name": "Garoe V2", "sku": "WGARO5CP", "gender": "mujer", "type": "Calzado", "price": 448000, "priceBefore": 640000, "installments": "3 cuotas de $149.333 con ADDI", "sizes": ["6", "6.5", "7"], "destacado": true}, {"img": "microspec-max-advance", "brand": "Skechers", "name": "Microspec Max Advance", "sku": "404106L-NVCC", "gender": "nino", "type": "Calzado", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["27.5", "28.5", "32", "33.5", "35"]}, {"img": "flex-focus", "brand": "Puma", "name": "Flex Focus", "sku": "312062-17", "gender": "nino", "type": "Calzado", "price": 196000, "priceBefore": 280000, "installments": "3 cuotas de $65.333 con ADDI", "sizes": ["29", "31", "33", "34"]}, {"img": "skyrocket-2", "brand": "Puma", "name": "Skyrocket 2", "sku": "312414-01", "gender": "nino", "type": "Calzado", "price": 203000, "priceBefore": 290000, "installments": "3 cuotas de $67.667 con ADDI", "sizes": ["33", "34"]}, {"img": "junior-skechers-litepro", "brand": "Skechers", "name": "Junior Skech-Litepro", "sku": "303935L-WHT", "gender": "nino", "type": "Calzado", "price": 126000, "priceBefore": 180000, "installments": "3 cuotas de $42.000 con ADDI", "sizes": ["35.5", "38"]}, {"img": "puma-runtamed-navy", "brand": "Puma", "name": "Runtamed V PS - Navy", "sku": "39393502", "gender": "nino", "type": "Calzado", "price": 203000, "priceBefore": 290000, "installments": "3 cuotas de $67.667 con ADDI", "sizes": ["33"]}, {"img": "courtclassic", "brand": "Le Coq Sportif", "name": "Courtclassic", "sku": "2310237", "gender": "nino", "type": "Calzado", "price": 190000, "priceBefore": 304000, "installments": "3 cuotas de $63.333 con ADDI", "sizes": ["33", "34"]}, {"img": "gorra-scuderia-ferrari", "brand": "Puma", "name": "Gorra Scuderia Ferrari", "sku": "027169-01", "gender": "accesorios", "type": "Gorra", "price": 182000, "priceBefore": 260000, "installments": "3 cuotas de $60.667 con ADDI", "sizes": ["Única"], "destacado": true}, {"img": "gorra-puma-f1", "brand": "Puma", "name": "Gorra Puma F1", "sku": "026900-02", "gender": "accesorios", "type": "Gorra", "price": 91000, "priceBefore": 130000, "installments": "3 cuotas de $30.333 con ADDI", "sizes": ["Única"]}, {"img": "small-sports-bag-puma", "brand": "Puma", "name": "Small Sports Bag", "sku": "9114301", "gender": "accesorios", "type": "Maletín", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["Única"]}, {"img": "gorra-puma-bmw", "brand": "Puma", "name": "Gorra Puma BMW", "sku": "26880-01", "gender": "accesorios", "type": "Gorra", "price": 105000, "priceBefore": 150000, "installments": "3 cuotas de $35.000 con ADDI", "sizes": ["Única"]}];
+const PRODUCTS = [{"img": "astra-special", "brand": "Le Coq Sportif", "name": "Astra Special", "sku": "2610718", "gender": "hombre", "type": "Calzado", "price": 315000, "priceBefore": 450000, "installments": "3 cuotas de $105.000 con ADDI", "sizes": ["40", "41", "43", "44.5"], "desc": "Zapatilla urbana Le Coq Sportif en negro y rojo, diseño retro running."}, {"img": "adilette-aqua", "brand": "Adidas", "name": "Adilette Aqua", "sku": "F35542", "gender": "hombre", "type": "Chanclas", "priceRange": [126000, 180000], "installments": "3 cuotas de $42.000 con ADDI", "sizes": ["7", "12"], "desc": "El clásico de adidas para el agua."}, {"img": "pounce-lite", "brand": "Puma", "name": "Pounce Lite", "sku": "31077817", "gender": "hombre", "type": "Calzado", "price": 273000, "priceBefore": 390000, "installments": "3 cuotas de $91.000 con ADDI", "sizes": ["7", "9.5", "10.5"], "desc": "Ligereza Puma para tu rutina."}, {"img": "indoor-marino", "brand": "Joma", "name": "Indoor Marino", "sku": "MAXW2503-IN", "gender": "hombre", "type": "Guayos", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["7.5", "8", "8.5", "9", "9.5"], "desc": "Indoor Marino de Joma: comodidad y estilo para hombres en cada paso. Disponible en varias tallas."}, {"img": "bmw-softride-slide", "brand": "Puma", "name": "BMW MMS Softride Slide", "sku": "307695-01", "gender": "hombre", "type": "Chanclas", "price": 161000, "priceBefore": 230000, "installments": "3 cuotas de $53.667 con ADDI", "sizes": ["8", "10"], "desc": "Calzado de Puma, ideal para hombre. Varias tallas disponibles."}, {"img": "chancla-le-coq-slide", "brand": "Le Coq Sportif", "name": "Chancla Le Coq Slide", "sku": "2610648", "gender": "hombre", "type": "Chanclas", "price": 105000, "priceBefore": 150000, "installments": "3 cuotas de $35.000 con ADDI", "sizes": ["39", "40", "41", "42", "43"]}, {"img": "racerone-special", "brand": "Le Coq Sportif", "name": "Racerone Special", "sku": "2610717", "gender": "hombre", "type": "Calzado", "price": 276500, "priceBefore": 395000, "installments": "3 cuotas de $92.167 con ADDI", "sizes": ["39", "40", "41", "42.5", "43", "44.5"], "destacado": true, "desc": "Zapatilla urbana Le Coq Sportif en negro y rojo, cuero sintético y suela de goma."}, {"img": "slip-ins-max-run", "brand": "Skechers", "name": "Slip-Ins Performance Max Run", "sku": "129200-GYMT", "gender": "mujer", "type": "Calzado", "price": 378000, "priceBefore": 540000, "installments": "3 cuotas de $126.000 con ADDI", "sizes": ["5.5", "7", "8"], "desc": "Slip-Ins Performance Max Run de Skechers: comodidad y estilo para mujeres en cada paso. Disponible en varias tallas."}, {"img": "adidas-galaxy-7", "brand": "Adidas", "name": "Galaxy 7", "sku": "ID8762", "gender": "mujer", "type": "Calzado", "price": 252000, "priceBefore": 360000, "installments": "3 cuotas de $84.000 con ADDI", "sizes": ["6", "6.5", "7", "7.5"], "destacado": true, "desc": "Corre cómoda desde el primer kilómetro."}, {"img": "running-course", "brand": "New Balance", "name": "Running Course", "sku": "W52051V", "gender": "mujer", "type": "Calzado", "price": 266000, "priceBefore": 380000, "installments": "3 cuotas de $88.667 con ADDI", "sizes": ["5", "6", "6.5", "7", "7.5"], "desc": "Comodidad New Balance para tu día a día."}, {"img": "popcat-20", "brand": "Puma", "name": "Popcat 20", "sku": "404855-01", "gender": "mujer", "type": "Chanclas", "price": 119000, "priceBefore": 170000, "installments": "3 cuotas de $39.667 con ADDI", "sizes": ["5", "6", "8", "9"], "desc": "Las sandalias Puma que no te vas a querer quitar."}, {"img": "st-miller-rise", "brand": "Puma", "name": "ST Miller Rise", "sku": "404916-02", "gender": "mujer", "type": "Calzado", "price": 315000, "priceBefore": 450000, "installments": "3 cuotas de $105.000 con ADDI", "sizes": ["5.5", "6", "6.5", "7", "7.5", "8.5"], "destacado": true, "desc": "Estilo urbano con altura: plataforma Puma."}, {"img": "nitrel-v6", "brand": "New Balance", "name": "Nitrel V6", "sku": "WNTR88D", "gender": "mujer", "type": "Calzado", "price": 343000, "priceBefore": 490000, "installments": "3 cuotas de $114.333 con ADDI", "sizes": ["6", "6.5", "7.5"], "desc": "La trail de New Balance para cualquier terreno."}, {"img": "garoe-v2", "brand": "New Balance", "name": "Garoe V2", "sku": "WGARO5CP", "gender": "mujer", "type": "Calzado", "price": 448000, "priceBefore": 640000, "installments": "3 cuotas de $149.333 con ADDI", "sizes": ["6", "6.5", "7"], "destacado": true, "desc": "La aventurera premium de New Balance."}, {"img": "microspec-max-advance", "brand": "Skechers", "name": "Microspec Max Advance", "sku": "404106L-NVCC", "gender": "nino", "type": "Calzado", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["27.5", "28.5", "32", "33.5", "35"], "desc": "Microspec Max Advance de Skechers: comodidad y estilo para los más pequeños en cada paso. Disponible en varias tallas."}, {"img": "flex-focus", "brand": "Puma", "name": "Flex Focus", "sku": "312062-17", "gender": "nino", "type": "Calzado", "price": 196000, "priceBefore": 280000, "installments": "3 cuotas de $65.333 con ADDI", "sizes": ["29", "31", "33", "34"], "desc": "Flex Focus de Puma: comodidad y estilo para los más pequeños en cada paso. Disponible en varias tallas."}, {"img": "skyrocket-2", "brand": "Puma", "name": "Skyrocket 2", "sku": "312414-01", "gender": "nino", "type": "Calzado", "price": 203000, "priceBefore": 290000, "installments": "3 cuotas de $67.667 con ADDI", "sizes": ["33", "34"], "desc": "Skyrocket 2 de Puma: comodidad y estilo para los más pequeños en cada paso. Disponible en varias tallas."}, {"img": "junior-skechers-litepro", "brand": "Skechers", "name": "Junior Skech-Litepro", "sku": "303935L-WHT", "gender": "nino", "type": "Calzado", "price": 126000, "priceBefore": 180000, "installments": "3 cuotas de $42.000 con ADDI", "sizes": ["35.5", "38"], "desc": "Calzado de Skechers, pensado para los más pequeños. Varias tallas disponibles."}, {"img": "puma-runtamed-navy", "brand": "Puma", "name": "Runtamed V PS - Navy", "sku": "39393502", "gender": "nino", "type": "Calzado", "price": 203000, "priceBefore": 290000, "installments": "3 cuotas de $67.667 con ADDI", "sizes": ["33"], "desc": "Calzado de Puma, pensado para los más pequeños. Varias tallas disponibles."}, {"img": "courtclassic", "brand": "Le Coq Sportif", "name": "Courtclassic", "sku": "2310237", "gender": "nino", "type": "Calzado", "price": 190000, "priceBefore": 304000, "installments": "3 cuotas de $63.333 con ADDI", "sizes": ["33", "34"], "desc": "Calzado de Le Coq Sportif, pensado para los más pequeños. Varias tallas disponibles."}, {"img": "gorra-scuderia-ferrari", "brand": "Puma", "name": "Gorra Scuderia Ferrari", "sku": "027169-01", "gender": "accesorios", "type": "Gorra", "price": 182000, "priceBefore": 260000, "installments": "3 cuotas de $60.667 con ADDI", "sizes": ["Única"], "destacado": true, "desc": "Gorra oficial Puma Scuderia Ferrari, ajustable, en rojo con escudo bordado."}, {"img": "gorra-puma-f1", "brand": "Puma", "name": "Gorra Puma F1", "sku": "026900-02", "gender": "accesorios", "type": "Gorra", "price": 91000, "priceBefore": 130000, "installments": "3 cuotas de $30.333 con ADDI", "sizes": ["Única"], "desc": "Gorra Puma F1 en negro, ajustable, ideal para el día a día."}, {"img": "small-sports-bag-puma", "brand": "Puma", "name": "Small Sports Bag", "sku": "9114301", "gender": "accesorios", "type": "Maletín", "price": 154000, "priceBefore": 220000, "installments": "3 cuotas de $51.333 con ADDI", "sizes": ["Única"], "desc": "Maletín de Puma, pensado para toda la familia."}, {"img": "gorra-puma-bmw", "brand": "Puma", "name": "Gorra Puma BMW", "sku": "26880-01", "gender": "accesorios", "type": "Gorra", "price": 105000, "priceBefore": 150000, "installments": "3 cuotas de $35.000 con ADDI", "sizes": ["Única"], "desc": "Gorra de Puma, pensada para toda la familia."}];
 
 /* ---------------- helpers ---------------- */
 const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
@@ -842,6 +886,29 @@ function closeCart(){
   document.getElementById('cartOverlay').classList.remove('open');
 }
 
+/* ---------------- quick view (descripción) ---------------- */
+function viewDetails(sku){
+  const p = byId(sku);
+  const discount = pct(p);
+  const priceTxt = p.priceRange ? `Desde ${fmt(p.priceRange[0])}` : fmt(p.price);
+  document.getElementById('qvBody').innerHTML = `
+    <div class="qv-photo"><img src="${IMAGES[p.img]}" alt="${p.brand} ${p.name}"></div>
+    <span class="brand-eyebrow">${p.brand} · ${genLabel(p.gender)}</span>
+    <h3 class="qv-name">${p.name}</h3>
+    <span class="prod-ref">REF. ${p.sku}</span>
+    <div class="price-row" style="margin-top:8px;">
+      <span class="price-now">${priceTxt}</span>
+      ${p.priceBefore ? `<span class="price-before">${fmt(p.priceBefore)}</span>` : ''}
+      ${discount ? `<span class="price-pct">Ahorras ${discount}%</span>` : ''}
+    </div>
+    <p class="qv-desc">${p.desc || 'Consulta por WhatsApp para más detalles de este producto.'}</p>
+  `;
+  document.getElementById('qvOverlay').classList.add('open');
+}
+function closeQV(){
+  document.getElementById('qvOverlay').classList.remove('open');
+}
+
 /* ---------------- render: category nav ---------------- */
 const catNav = document.getElementById('catNav');
 let activeCat = '';
@@ -895,10 +962,15 @@ function card(p){
       <span class="sizes-label">Talla — toca para elegir</span>
       <div class="sizes-row" data-sku="${p.sku}">${p.sizes.map(s=>`<button type="button" class="size-chip${s===sel?' active':''}" data-size="${s}" onclick="selectSize('${p.sku}','${s}')">${s}</button>`).join('')}</div>
       <div class="card-foot">
+      <div class="foot-row">
         <button class="btn-buy" type="button" onclick="buyNow('${p.sku}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21.5 8H6"/></svg>
           Comprar ahora
         </button>
+        <button class="btn-eye" type="button" onclick="viewDetails('${p.sku}')" aria-label="Ver descripción">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
       </div>
     </div>
   </article>`;
