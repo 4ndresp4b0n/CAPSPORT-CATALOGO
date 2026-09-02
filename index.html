@@ -507,6 +507,24 @@
     .cart-total-row .tot{font-size:35px;}
     .cart-total-row span:first-child{font-size:16.5px;}
     .btn-checkout{font-size:20px;padding:19px 20px;}
+
+    /* Ofertas / Más buscados: siempre 3 tarjetas completas en pantalla,
+       sin cortar — por eso su texto es más compacto que el resto. */
+    .rail{gap:10px;}
+    .rail .card{flex:0 0 calc((100% - 20px)/3);}
+    .rail .card .badge{font-size:8px;padding:3px 5px;}
+    .rail .card .card-body{padding:8px 7px 9px;gap:5px;}
+    .rail .card .brand-eyebrow{font-size:8px;}
+    .rail .card .prod-name{font-size:10.5px;line-height:1.2;}
+    .rail .card .prod-ref{font-size:8px;}
+    .rail .card .price-now{font-size:14px;}
+    .rail .card .price-before{font-size:8.5px;}
+    .rail .card .price-pct{font-size:8px;}
+    .rail .card .installments{display:none;}
+    .rail .card .sizes-label{font-size:8px;}
+    .rail .card .size-chip{font-size:8.5px;padding:2px 5px;}
+    .rail .card .btn-consult,.rail .card .btn-buy{font-size:9px;padding:7px 4px;gap:3px;}
+    .rail .card .btn-consult svg,.rail .card .btn-buy svg{width:11px;height:11px;}
   }
 
   /* ---------- print ---------- */
