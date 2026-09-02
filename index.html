@@ -299,8 +299,8 @@
   .rail{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;scrollbar-width:none;}
   .rail::-webkit-scrollbar{display:none;}
   .rail .card{flex:0 0 78%;scroll-snap-align:start;}
-  @media(min-width:640px){.rail .card{flex-basis:44%;}}
-  @media(min-width:1024px){.rail .card{flex-basis:29%;}}
+  @media(min-width:640px){.rail .card{flex:0 0 calc((100% - 14px)/2);}}
+  @media(min-width:1024px){.rail .card{flex:0 0 calc((100% - 28px)/3);}}
 
   .card{
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);
