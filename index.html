@@ -664,6 +664,7 @@
         <span class="count-pill" id="ofertasCount"></span>
       </div>
       <div class="rail" id="ofertasRail"></div>
+      <button type="button" class="btn btn-ghost" style="margin-top:14px;width:100%;justify-content:center;border-color:rgba(255,255,255,0.4);color:#fff;" onclick="viewAllOfertas()">Ver todas las ofertas</button>
     </div>
   </section>
 
@@ -947,6 +948,14 @@ CATEGORIES.forEach(c=>{
   });
   catNav.appendChild(b);
 });
+function viewAllOfertas(){
+  activeCat = 'ofertas';
+  const btns = document.querySelectorAll('#catNav .cat-btn');
+  btns.forEach(x=>x.setAttribute('aria-pressed', x.textContent.includes('Ofertas') ? 'true':'false'));
+  closeAllPops();
+  render();
+  document.getElementById('gridSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
 
 /* ---------------- Marcas / Tallas: botón + popover ---------------- */
 function closeAllPops(){
@@ -1107,8 +1116,13 @@ function render(){
 document.getElementById('searchInput').addEventListener('input', render);
 
 /* ---------------- ofertas rail ---------------- */
+// Vitrina con una muestra: mostrar TODAS las ofertas aquí (pueden ser 170+)
+// revienta el alto de la página en móvil (el rail se vuelve columna) y eso
+// rompe el render de imágenes en algunos navegadores. El listado completo
+// ya está disponible filtrando por "Ofertas" en el catálogo de abajo.
 const ofertas = PRODUCTS.filter(p=>pct(p));
-document.getElementById('ofertasRail').innerHTML = ofertas.map(card).join('');
+const OFERTAS_PREVIEW = 12;
+document.getElementById('ofertasRail').innerHTML = ofertas.slice(0, OFERTAS_PREVIEW).map(card).join('');
 document.getElementById('ofertasCount').textContent = `${ofertas.length} en oferta`;
 
 /* ---------------- destacados rail ---------------- */
